@@ -165,37 +165,36 @@ class CSG(object):
         
         Example code:
         
-            cube = CSG.cube({
-              center: [0, 0, 0],
-              radius: 1
-            });
+            cube = CSG.cube(
+              center=[0, 0, 0],
+              radius=1
+            )
         """
         c = CSG.Vector(0, 0, 0)
         r = [1, 1, 1]
-        if isinstance(center, list):
-            c = CSG.Vector(center[0], center[1], center[2])
-            print c
-        if isinstance(radius, list):
-            r = radius
-        else:
-            r = [radius, radius, radius]
-            
-        data = [
-            [[0, 4, 6, 2], [-1, 0, 0]],
-            [[1, 3, 7, 5], [+1, 0, 0]],
-            [[0, 1, 5, 4], [0, -1, 0]],
-            [[2, 6, 7, 3], [0, +1, 0]],
-            [[0, 2, 3, 1], [0, 0, -1]],
-            [[4, 5, 7, 6], [0, 0, +1]]
-        ];
+        if isinstance(center, list): c = CSG.Vector(center)
+        if isinstance(radius, list): r = radius
+        else: r = [radius, radius, radius]
 
-        polygons = map(lambda v: CSG.Polygon( 
-                        map(lambda i: CSG.Vertex(
-                            CSG.Vector(
-                                c.x + r[0] * (2 * bool(i & 1) - 1),
-                                c.y + r[1] * (2 * bool(i & 2) - 1),
-                                c.z + r[2] * (2 * bool(i & 4) - 1)
-                            ), v[1]), v[0])), data)
+        polygons = map(
+            lambda v: CSG.Polygon( 
+                map(lambda i: 
+                    CSG.Vertex(
+                        CSG.Vector(
+                            c.x + r[0] * (2 * bool(i & 1) - 1),
+                            c.y + r[1] * (2 * bool(i & 2) - 1),
+                            c.z + r[2] * (2 * bool(i & 4) - 1)
+                        ), 
+                        v[1]
+                    ), v[0])),
+                    [
+                        [[0, 4, 6, 2], [-1, 0, 0]],
+                        [[1, 3, 7, 5], [+1, 0, 0]],
+                        [[0, 1, 5, 4], [0, -1, 0]],
+                        [[2, 6, 7, 3], [0, +1, 0]],
+                        [[0, 2, 3, 1], [0, 0, -1]],
+                        [[4, 5, 7, 6], [0, 0, +1]]
+                    ])
             
         return CSG.fromPolygons(polygons)
         
@@ -216,6 +215,10 @@ class CSG(object):
                 self.y = args[1]
                 self.z = args[2]
             elif len(args) == 1 and isinstance(args[0], CSG.Vector):
+                self.x = args[0][0]
+                self.y = args[0][1]
+                self.z = args[0][2]
+            elif len(args) == 1 and isinstance(args[0], list):
                 self.x = args[0][0]
                 self.y = args[0][1]
                 self.z = args[0][2]
