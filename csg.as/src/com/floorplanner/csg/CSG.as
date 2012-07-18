@@ -80,6 +80,14 @@ package com.floorplanner.csg
 		}
 		
 		/**
+		 * 
+		 */ 
+		public function toPolygons():Vector.<Polygon>
+		{
+			return this.polygons;	
+		}
+		
+		/**
 		  * Return a new CSG solid representing space in either this solid or in the
 		  * solid `csg`. Neither this solid nor the solid `csg` are modified.
 		  * 
@@ -175,6 +183,12 @@ package com.floorplanner.csg
 			return CSG.fromPolygons(a.allPolygons());
 		}
 		
+		/**
+		 * Cube
+		 * @param center
+		 * @param radius
+		 * @return CSG
+		 */ 
 		public static function cube(center:Vector3D=null, radius:Vector3D=null):CSG
 		{
 			var c:Vector3D = center || new Vector3D(),
@@ -201,6 +215,46 @@ package com.floorplanner.csg
 							);
 						});
 				polygons.push(new Polygon(Vector.<IVertex>(verts)));
+			}
+			return CSG.fromPolygons(polygons);
+		}
+		
+		/**
+		 * Sphere
+		 * @param center
+		 * @param radius
+		 * @param slices
+		 * @param stacks
+		 * @return CSG
+		 */ 
+		public static function sphere(center:Vector3D=null, radius:Number=1, slices:Number=16, stacks:Number=8):CSG
+		{
+			var c:Vector3D = center || new Vector3D(),
+				r:Number = radius,
+				polygons:Vector.<Polygon> = new Vector.<Polygon>(),
+				vertices:Vector.<IVertex>;
+			
+			function vertex(theta:Number, phi:Number):void {
+				theta *= Math.PI * 2;
+				phi *= Math.PI;
+				var dir:Vector3D = new Vector3D(
+					Math.cos(theta) * Math.sin(phi),
+					Math.cos(phi),
+					Math.sin(theta) * Math.sin(phi)
+				);
+				var sdir:Vector3D = dir.clone();
+				sdir.scaleBy(r);
+				vertices.push(new Vertex(c.add(sdir), dir));
+			}
+			for (var i:uint = 0; i < slices; i++) {
+				for (var j:uint = 0; j < stacks; j++) {
+					vertices = new Vector.<IVertex>();
+					vertex(i / slices, j / stacks);
+					if (j > 0) vertex((i + 1) / slices, j / stacks);
+					if (j < stacks - 1) vertex((i + 1) / slices, (j + 1) / stacks);
+					vertex(i / slices, (j + 1) / stacks);
+					polygons.push(new Polygon(vertices));
+				}
 			}
 			return CSG.fromPolygons(polygons);
 		}
